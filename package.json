@@ -2,9 +2,15 @@
   "name": "react-dntel-form",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsup src/index.tsx --dts --format esm,cjs",
+    "dev": "tsup src/index.ts --dts --format esm,cjs --watch",
+    "build": "tsup src/index.ts --dts --format esm,cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +20,7 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@types/node": "^22.14.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "autoprefixer": "^10.4.21",
