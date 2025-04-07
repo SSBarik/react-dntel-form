@@ -7,4 +7,17 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   watch: process.env.WATCH === "true",
+  esbuildPlugins: [
+    {
+      name: "tailwind-css",
+      setup(build) {
+        build.onLoad({ filter: /\.css$/ }, async (args) => {
+          return {
+            loader: "css",
+            contents: await require("fs").promises.readFile(args.path, "utf8"),
+          };
+        });
+      },
+    },
+  ],
 });
