@@ -1,6 +1,6 @@
 import React from "react";
 import { DntelFieldProps } from "@types";
-import { X } from "lucide-react";
+import { X, Info } from "lucide-react";
 
 type SelectOption = { value: string; label: string };
 
@@ -29,9 +29,16 @@ const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
     if (fieldType === "boolean") return typeof value !== "boolean";
     if (fieldType === "select")
       return !normalizedOptions.find((opt) => opt.value === value);
-    if (fieldType === "date") return !/^\d{4}-\d{2}-\d{2}$/.test(value); // crude date match
+    if (fieldType === "date") return !/^\d{4}-\d{2}-\d{2}$/.test(value);
     return false;
   })();
+
+  const TooltipIcon = () =>
+    field.tooltip ? (
+      <span className="ml-1 inline-block align-middle" title={field.tooltip}>
+        <Info size={14} className="text-gray-400 inline-block" />
+      </span>
+    ) : null;
 
   if (!editMode) {
     return (
@@ -40,7 +47,8 @@ const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
           htmlFor={inputId}
           className="block text-sm font-medium text-gray-700"
         >
-          {label} <span className="text-xs text-gray-400">({field.key})</span>
+          {label}
+          <TooltipIcon />
         </label>
         <div id={inputId} className="mt-1 p-2 bg-gray-100 rounded">
           {fieldType === "boolean"
@@ -78,7 +86,8 @@ const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
         htmlFor={inputId}
         className="block text-sm font-medium text-gray-700 mb-1"
       >
-        {label} <span className="text-xs text-gray-400">({field.key})</span>
+        {label}
+        <TooltipIcon />
       </label>
 
       {isMismatch ? (

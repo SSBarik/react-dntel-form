@@ -44,10 +44,7 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
           {section.id} ({stats.filled}/{stats.total})
         </span>
       </h2>
-      <p className="text-sm text-gray-600">
-        Stats: <span className="font-medium">{stats.filled}</span> /{" "}
-        {stats.total} filled
-      </p>
+
       {section.tooltip && (
         <p className="text-sm text-gray-600">{section.tooltip}</p>
       )}
