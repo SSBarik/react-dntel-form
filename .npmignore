@@ -1,0 +1,25 @@
+# Ignore source files
+src/
+*.ts
+*.tsx
+*.map
+
+# Ignore configs
+tsconfig.json
+.vscode/
+jest.config.js
+.eslintrc.js
+.prettierrc
+.gitignore
+.npmignore
+
+# Ignore test files
+__tests__/
+*.test.*
+*.spec.*
+
+# Ignore build scripts or docs
+scripts/
+storybook-static/
+docs/
+example/
