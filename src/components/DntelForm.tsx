@@ -14,7 +14,7 @@ export const DntelForm: React.FC<DntelFormProps> = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-wrap -mx-4">
       {sortedSections.map((section) => (
         <DntelSection
           key={section.id}
