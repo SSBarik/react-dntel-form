@@ -23,8 +23,13 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
 
       <div className="grid grid-cols-2 gap-4">
         {Object.entries(section.fields).map(([fieldKey, field]) => {
-          const value =
-            changes[fieldKey] ?? field.value ?? field.defaultValue ?? "";
+          const hasUserChange = Object.prototype.hasOwnProperty.call(
+            changes,
+            fieldKey
+          );
+          const value = hasUserChange
+            ? changes[fieldKey]
+            : field.value ?? field.defaultValue ?? "";
           return (
             <DntelField
               key={`${section.id}-${fieldKey}`}
@@ -32,6 +37,7 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
               value={value}
               onChange={(val) => changeValue(fieldKey, val)}
               editMode={editMode}
+              sectionId={section.id}
             />
           );
         })}

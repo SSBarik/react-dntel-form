@@ -1,13 +1,15 @@
 import React from "react";
 import { DntelFieldProps } from "@types";
+import { X } from "lucide-react";
 
 type SelectOption = { value: string; label: string };
 
-const DntelField: React.FC<DntelFieldProps> = ({
+const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
   field,
   value,
   onChange,
   editMode,
+  sectionId,
 }) => {
   const fieldType = field.interface?.type ?? "text";
   const label = field.title;
@@ -19,26 +21,71 @@ const DntelField: React.FC<DntelFieldProps> = ({
         )
       : [];
 
+  const inputId = `${sectionId}-${field.key}`;
+
+  const isMismatch = (() => {
+    if (value === null || value === undefined || value === "") return false;
+
+    if (fieldType === "boolean") return typeof value !== "boolean";
+    if (fieldType === "select")
+      return !normalizedOptions.find((opt) => opt.value === value);
+    if (fieldType === "date") return !/^\d{4}-\d{2}-\d{2}$/.test(value); // crude date match
+    return false;
+  })();
+
   if (!editMode) {
     return (
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-gray-700"
+        >
           {label} <span className="text-xs text-gray-400">({field.key})</span>
         </label>
-        <div className="mt-1 p-2 bg-gray-100 rounded">
-          {value?.toString() || "—"}
+        <div id={inputId} className="mt-1 p-2 bg-gray-100 rounded">
+          {fieldType === "boolean"
+            ? value === true
+              ? "Yes"
+              : "No"
+            : value?.toString() || "—"}
         </div>
       </div>
     );
   }
 
+  const renderMismatchField = () => (
+    <div className="flex items-center gap-2">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="border rounded px-2 py-1 w-full"
+      />
+      <button
+        type="button"
+        onClick={() => onChange("")}
+        className="text-red-500 hover:text-red-700"
+        title="Reset value"
+      >
+        <X size={16} />
+      </button>
+    </div>
+  );
+
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label
+        htmlFor={inputId}
+        className="block text-sm font-medium text-gray-700 mb-1"
+      >
         {label} <span className="text-xs text-gray-400">({field.key})</span>
       </label>
-      {fieldType === "boolean" ? (
+
+      {isMismatch ? (
+        renderMismatchField()
+      ) : fieldType === "boolean" ? (
         <input
+          id={inputId}
           type="checkbox"
           checked={!!value}
           onChange={(e) => onChange(e.target.checked)}
@@ -47,6 +94,7 @@ const DntelField: React.FC<DntelFieldProps> = ({
         />
       ) : fieldType === "select" ? (
         <select
+          id={inputId}
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           className="border rounded px-2 py-1 w-full"
@@ -55,7 +103,7 @@ const DntelField: React.FC<DntelFieldProps> = ({
           <option value="" disabled>
             {field.placeholder || "Select an option"}
           </option>
-          {normalizedOptions.map((option: SelectOption) => (
+          {normalizedOptions.map((option) => (
             <option key={`${field.key}-${option.value}`} value={option.value}>
               {option.label}
             </option>
@@ -63,6 +111,7 @@ const DntelField: React.FC<DntelFieldProps> = ({
         </select>
       ) : (
         <input
+          id={inputId}
           type={fieldType}
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
