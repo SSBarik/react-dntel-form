@@ -1,5 +1,5 @@
 import React from "react";
-import { DntelFieldProps, DntelFieldType } from "@types";
+import { DntelFieldProps } from "@types";
 
 const DntelField: React.FC<DntelFieldProps> = ({
   field,
@@ -7,36 +7,44 @@ const DntelField: React.FC<DntelFieldProps> = ({
   onChange,
   editMode,
 }) => {
-  if (field.hidden) return null;
+  const fieldType = field.interface?.type ?? "text";
+  const label = field.title;
 
-  const commonProps = {
-    className: "border rounded px-2 py-1 w-full",
-    placeholder: field.placeholder,
-    disabled: field.disabled,
-  };
-
-  const fieldType: DntelFieldType = field.interface?.type ?? "text";
+  if (!editMode) {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">
+          {label}
+        </label>
+        <div className="mt-1 p-2 bg-gray-100 rounded">
+          {value?.toString() || "—"}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`mb-4 col-span-${field.colSpan || 1}`}>
-      <label className="text-sm font-medium block mb-1">
-        {field.title}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
       </label>
-      {editMode ? (
+      {fieldType === "boolean" ? (
         <input
-          type={fieldType}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          {...commonProps}
+          type="checkbox"
+          checked={!!value}
+          onChange={(e) => onChange(e.target.checked)}
+          className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          disabled={field.disabled}
         />
       ) : (
-        <div className="bg-gray-100 p-2 rounded min-h-[2.5rem]">
-          {value || field.defaultValue || "—"}
-        </div>
-      )}
-      {field.tooltip && (
-        <div className="text-xs text-gray-500 mt-1">{field.tooltip}</div>
+        <input
+          type={fieldType}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="border rounded px-2 py-1 w-full"
+          placeholder={field.placeholder}
+          disabled={field.disabled}
+        />
       )}
     </div>
   );

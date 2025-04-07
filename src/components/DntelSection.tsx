@@ -1,7 +1,7 @@
 // File: src/components/DntelSection.tsx
 import React from "react";
 import { DntelSectionProps } from "@types";
-import DntelField from "@components/DntelFiled";
+import DntelField from "@components/DntelField";
 
 export const DntelSection: React.FC<DntelSectionProps> = ({
   section,
@@ -20,15 +20,15 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        {section.fields.map((field) => {
+        {Object.entries(section.fields).map(([fieldKey, field]) => {
           const value =
-            changes[field.key] ?? field.value ?? field.defaultValue ?? "";
+            changes[fieldKey] ?? field.value ?? field.defaultValue ?? "";
           return (
             <DntelField
-              key={field.key}
-              field={field}
+              key={`${section.id}-${fieldKey}`}
+              field={{ ...field, key: fieldKey }}
               value={value}
-              onChange={(val) => changeValue(field.key, val)}
+              onChange={(val) => changeValue(fieldKey, val)}
               editMode={editMode}
             />
           );
