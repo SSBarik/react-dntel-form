@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@components/ui/Tooltip";
+} from "@components/ui/tooltip";
 
 type SelectOption = { value: string; label: string };
 

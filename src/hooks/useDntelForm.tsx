@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { DntelFormHook } from "@types";
-import { DntelForm } from "@components/DntelForm";
+import DntelForm from "@components/DntelForm";
 
 export function useDntelForm(initialData: any, id?: string): DntelFormHook {
   const STORAGE_KEY = id ? `dntel-changes-${id}` : "dntel-changes";
@@ -45,20 +45,9 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
   }, []);
 
   const expandAll = useCallback(() => {
-    const allIds = Object.entries(initialData.sections)
-      .map(([key, section]: [string, any]) => {
-        if (section.title === "Codes") {
-          return Object.keys(section.fields).map(
-            (codeKey) => `${section.id}.${codeKey}`
-          );
-        }
-        return section.id;
-      })
-      .flat();
-
+    const allIds = Object.keys(initialData.sections); // ✅ just section ids
     setExpandedSections(allIds);
   }, [initialData]);
-
   const collapseAll = useCallback(() => {
     setExpandedSections([]);
   }, []);

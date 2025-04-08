@@ -1,161 +1,134 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@components/ui/card";
-import { Input } from "@components/ui/input";
-import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
-import { Separator } from "@components/ui/separator";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { DntelCodesSectionProps } from "../types";
+import { DntelCodeSectionSchema, DntelFieldSchema } from "../types";
+
+interface DntelCodesSectionProps {
+  section: DntelCodeSectionSchema & { id: string };
+  changes: { [key: string]: any };
+  changeValue: (key: string, value: any) => void;
+  editMode: boolean;
+  scrollToSection: (id: string) => void;
+  expandedSections: string[];
+  expandSection: (id: string) => void;
+  collapseSection: (id: string) => void;
+}
 
 export default function DntelCodesSection({
   section,
   changes,
   changeValue,
   editMode,
+  scrollToSection,
+  expandedSections,
+  expandSection,
+  collapseSection,
 }: DntelCodesSectionProps) {
-  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  const toggleOpen = (code: string) => {
-    setOpen((prev) => ({ ...prev, [code]: !prev[code] }));
+  const entries = Object.entries(section.fields ?? {});
+
+  const toggleExpand = (index: number) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
+  const total = entries.reduce(
+    (acc, [_, data]) => acc + (data.stats?.total || 0),
+    0
+  );
+  const filled = entries.reduce(
+    (acc, [_, data]) => acc + (data.stats?.filled || 0),
+    0
+  );
+
+  const isOpen = expandedSections.includes(section.id);
+
+  const handleToggle = () => {
+    isOpen ? collapseSection(section.id) : expandSection(section.id);
   };
 
   return (
-    <div className="w-full">
-      {Object.entries(section.fields).map(([codeKey, codeEntry]) => {
-        const openKey = `${section.id}.${codeKey}`;
-        const isOpen = open[openKey] || false;
+    <div className="w-full px-4">
+      <div className="flex items-center justify-between px-4 py-3 border rounded-md shadow-sm bg-white">
+        <div className="text-xl font-semibold text-black">
+          {section.title} ({filled}/{total})
+        </div>
+        <Button
+          variant="ghost"
+          className="text-gray-500 hover:text-gray-700"
+          onClick={handleToggle}
+          aria-label="Toggle Codes Section"
+        >
+          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </Button>
+      </div>
 
-        return (
-          <Card key={codeKey} className="mb-6 bg-white shadow rounded-xl">
-            <CardContent className="space-y-4 p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                  <h3 className="text-lg font-medium text-primary">
-                    {codeEntry.friendlyName} ({codeKey})
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Code information
-                  </p>
-                </div>
-                {codeEntry.guidelines && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleOpen(openKey)}
-                  >
-                    {isOpen ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {codeEntry.frequency && (
-                  <div className="space-y-1">
-                    <Label htmlFor={`frequency-${codeKey}`}>Frequency</Label>
-                    {editMode ? (
-                      <Input
-                        id={`frequency-${codeKey}`}
-                        value={codeEntry.frequency.value || ""}
-                        onChange={(e) =>
-                          changeValue(
-                            `${section.id}.${codeKey}.frequency`,
-                            e.target.value
-                          )
-                        }
-                      />
-                    ) : (
-                      <div>{codeEntry.frequency.value || "-"}</div>
-                    )}
+      {isOpen && (
+        <Card className="rounded-lg border border-gray-200 mt-4">
+          <CardContent className="p-0">
+            <div className="grid grid-cols-5 gap-4 border-b p-4 font-semibold text-sm text-black bg-gray-50">
+              <div>Code</div>
+              <div>%</div>
+              <div>Freq</div>
+              <div>Additional Info</div>
+              <div>Actions</div>
+            </div>
+            {entries.map(([code, data], idx) => (
+              <div key={code}>
+                <div className="grid grid-cols-5 gap-4 p-4 border-b items-center text-sm text-gray-800">
+                  <div>{code}</div>
+                  <div>{data.coveragePercentage?.value || "–"}</div>
+                  <div>{data.frequency?.value || "–"}</div>
+                  <div>
+                    <Button
+                      variant="outline"
+                      onClick={() => toggleExpand(idx)}
+                      className="text-xs font-medium flex items-center gap-1 rounded-md px-2 py-1 border-gray-300 shadow-sm"
+                    >
+                      {expandedIndex === idx ? (
+                        <ChevronUp className="w-3 h-3" />
+                      ) : (
+                        <ChevronDown className="w-3 h-3" />
+                      )}
+                      Additional Info ({data.stats?.filled || 0})
+                    </Button>
                   </div>
-                )}
-
-                {codeEntry.coveragePercentage && (
-                  <div className="space-y-1">
-                    <Label htmlFor={`coverage-${codeKey}`}>
-                      Coverage Percentage
-                    </Label>
-                    {editMode ? (
-                      <Input
-                        id={`coverage-${codeKey}`}
-                        value={codeEntry.coveragePercentage.value || ""}
-                        onChange={(e) =>
-                          changeValue(
-                            `${section.id}.${codeKey}.coveragePercentage`,
-                            e.target.value
-                          )
-                        }
-                      />
-                    ) : (
-                      <div>{codeEntry.coveragePercentage.value || "-"}</div>
-                    )}
-                  </div>
-                )}
-
-                <div className="space-y-1">
-                  <Label>Actions</Label>
-                  <div className="text-muted-foreground">—</div>
+                  <div>–</div>
                 </div>
-              </div>
-
-              {codeEntry.guidelines && isOpen && (
-                <div className="pt-4">
-                  <Separator className="mb-4" />
-                  <h4 className="font-medium text-sm mb-2">Guidelines</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(codeEntry.guidelines).map(
-                      ([gKey, gField]) => (
-                        <div key={gKey} className="space-y-1">
-                          <Label htmlFor={`guideline-${codeKey}-${gKey}`}>
-                            {gField.title}
-                          </Label>
-                          {editMode ? (
-                            gField.interface.type === "boolean" ? (
-                              <input
-                                type="checkbox"
-                                id={`guideline-${codeKey}-${gKey}`}
-                                checked={Boolean(gField.value)}
-                                onChange={(e) =>
-                                  changeValue(
-                                    `${section.id}.${codeKey}.guidelines.${gKey}`,
-                                    e.target.checked
-                                  )
-                                }
-                              />
-                            ) : (
-                              <Input
-                                id={`guideline-${codeKey}-${gKey}`}
-                                value={gField.value || ""}
-                                onChange={(e) =>
-                                  changeValue(
-                                    `${section.id}.${codeKey}.guidelines.${gKey}`,
-                                    e.target.value
-                                  )
-                                }
-                              />
+                {expandedIndex === idx && (
+                  <div className="col-span-5 px-4 pb-4">
+                    <div className="mt-3 bg-gray-50 rounded-md p-4">
+                      {Object.entries(data.guidelines ?? {}).length === 0 ? (
+                        <div className="text-gray-600 text-sm">
+                          No additional info available.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                          {Object.entries(data.guidelines ?? {}).map(
+                            ([question, answer], gidx) => (
+                              <div key={gidx} className="col-span-2">
+                                <div className="font-semibold text-black mb-1">
+                                  {question}
+                                </div>
+                                <div>
+                                  {typeof answer.value === "boolean"
+                                    ? answer.value.toString()
+                                    : answer.value || "–"}
+                                </div>
+                              </div>
                             )
-                          ) : (
-                            <div>
-                              {gField.interface.type === "boolean"
-                                ? gField.value
-                                  ? "Yes"
-                                  : "No"
-                                : gField.value || "-"}
-                            </div>
                           )}
                         </div>
-                      )
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
