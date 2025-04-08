@@ -1,7 +1,8 @@
 {
   "name": "react-dntel-form",
-  "version": "1.0.6",
-  "description": "",
+  "version": "1.0.7",
+  "homepage": "https://dntel-form-demo.vercel.app/",
+  "description": "A react package which exports a form hook called useDntelForm",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
