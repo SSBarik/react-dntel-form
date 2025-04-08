@@ -31,21 +31,7 @@ const DntelForm: React.FC<DntelFormProps> = ({
 
   const [internalExpandedSections, setInternalExpandedSections] = useState<
     string[]
-  >(() => {
-    const defaultExpanded: string[] = [];
-    sortedSections.forEach((section) => {
-      if (section.title === "Codes" && "fields" in section) {
-        defaultExpanded.push(
-          ...Object.keys(section.fields).map(
-            (codeKey) => `${section.id}.${codeKey}`
-          )
-        );
-      } else {
-        defaultExpanded.push(section.id);
-      }
-    });
-    return defaultExpanded;
-  });
+  >(() => allSectionIds);
 
   const expanded = externalExpandedSections ?? internalExpandedSections;
 

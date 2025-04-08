@@ -16,7 +16,9 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
     }
   });
 
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [expandedSections, setExpandedSections] = useState<string[]>(() =>
+    Object.keys(initialData.sections)
+  );
   const [activeSection, setActiveSection] = useState<string>("");
   const [lastChanged, setLastChanged] = useState<number | null>(null);
 
