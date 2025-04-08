@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { DntelFormHook } from "@types";
 import { DntelForm } from "@components/DntelForm";
 
@@ -15,6 +15,7 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
       return {};
     }
   });
+
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [activeSection, setActiveSection] = useState<string>("");
   const [lastChanged, setLastChanged] = useState<number | null>(null);
@@ -44,16 +45,18 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
   }, []);
 
   const expandAll = useCallback(() => {
-    const allKeys = Object.keys(initialData.sections).flatMap((sectionId) => {
-      const section = initialData.sections[sectionId];
-      if (section.title === "Codes") {
-        return Object.keys(section.fields).map(
-          (codeKey) => `${section.id}.${codeKey}`
-        );
-      }
-      return section.id;
-    });
-    setExpandedSections(allKeys);
+    const allIds = Object.entries(initialData.sections)
+      .map(([key, section]: [string, any]) => {
+        if (section.title === "Codes") {
+          return Object.keys(section.fields).map(
+            (codeKey) => `${section.id}.${codeKey}`
+          );
+        }
+        return section.id;
+      })
+      .flat();
+
+    setExpandedSections(allIds);
   }, [initialData]);
 
   const collapseAll = useCallback(() => {
@@ -94,14 +97,13 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
         }
       } else {
         setChanges({});
-        // Don't touch localStorage — keep the draft!
       }
       setEditModeState(edit);
     },
     [STORAGE_KEY]
   );
 
-  const FormComponent = useMemo(
+  const FormComponent = useCallback(
     () => (
       <DntelForm
         initialData={initialData}
@@ -114,15 +116,11 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
         collapseSection={collapseSection}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
-        scrollToSection={(id) => {
-          scrollToSection(id);
-        }}
+        scrollToSection={scrollToSection}
       />
     ),
     [
       initialData,
-      changes,
-      savedData,
       getCurrentData,
       changeValue,
       editMode,

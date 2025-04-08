@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   DntelCodeSectionSchema,
   DntelFormProps,
@@ -13,18 +13,55 @@ export const DntelForm: React.FC<DntelFormProps> = ({
   changeValue,
   editMode,
   setEditMode,
-  expandedSections,
-  expandSection,
-  collapseSection,
   activeSection,
   scrollToSection,
   setActiveSection,
+  expandedSections: externalExpandedSections,
+  expandSection: externalExpandSection,
+  collapseSection: externalCollapseSection,
 }) => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const sortedSections = Object.entries(initialData.sections)
     .map(([key, section]) => ({ ...section, id: key }))
     .sort((a, b) => a.order - b.order);
+
+  const allSectionIds = sortedSections.map((s) => s.id);
+
+  const [internalExpandedSections, setInternalExpandedSections] =
+    useState<string[]>(allSectionIds);
+
+  const expanded = externalExpandedSections ?? internalExpandedSections;
+
+  const expand =
+    externalExpandSection ??
+    ((id: string) => {
+      setInternalExpandedSections((prev) =>
+        prev.includes(id) ? prev : [...prev, id]
+      );
+    });
+
+  const collapse =
+    externalCollapseSection ??
+    ((id: string) => {
+      setInternalExpandedSections((prev) => prev.filter((sid) => sid !== id));
+    });
+
+  const expandAll = () => {
+    if (externalExpandSection) {
+      allSectionIds.forEach((id) => externalExpandSection(id));
+    } else {
+      setInternalExpandedSections(allSectionIds);
+    }
+  };
+
+  const collapseAll = () => {
+    if (externalCollapseSection) {
+      allSectionIds.forEach((id) => externalCollapseSection(id));
+    } else {
+      setInternalExpandedSections([]);
+    }
+  };
 
   const isCodeSection = (
     section: DntelSectionSchema | DntelCodeSectionSchema
@@ -41,7 +78,6 @@ export const DntelForm: React.FC<DntelFormProps> = ({
       const el = sectionRefs.current[activeSection];
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
-        setActiveSection?.(activeSection);
       }
     }
   }, [activeSection]);
@@ -61,50 +97,77 @@ export const DntelForm: React.FC<DntelFormProps> = ({
       }
     );
 
-    Object.entries(sectionRefs.current).forEach(([id, el]) => {
-      if (el) observer.observe(el);
-    });
+    const elements = Object.values(sectionRefs.current).filter(Boolean);
+    elements.forEach((el) => observer.observe(el!));
 
-    return () => observer.disconnect();
+    return () => {
+      elements.forEach((el) => observer.unobserve(el!));
+      observer.disconnect();
+    };
   }, []);
 
   return (
-    <div className="flex flex-wrap gap-x-6 gap-y-6">
-      {sortedSections.map((section) => {
-        const refCallback = (el: HTMLDivElement | null) => {
-          sectionRefs.current[section.id] = el;
-        };
+    <>
+      {/* Expand/Collapse All Buttons */}
+      <div className="w-full flex justify-end gap-2 mb-4">
+        <button
+          onClick={expandAll}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Expand All
+        </button>
+        <button
+          onClick={collapseAll}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Collapse All
+        </button>
+      </div>
 
-        if (isServiceHistory(section)) return null;
+      <div className="flex flex-wrap gap-x-6 gap-y-6">
+        {sortedSections.map((section) => {
+          const refCallback = (el: HTMLDivElement | null) => {
+            sectionRefs.current[section.id] = el;
+          };
 
-        return (
-          <div
-            key={section.id}
-            ref={refCallback}
-            data-section-id={section.id}
-            className="w-full"
-          >
-            {isCodeSection(section) ? (
-              <DntelCodesSection
-                section={section}
-                changes={changes}
-                changeValue={changeValue}
-                editMode={editMode}
-                expandedSections={expandedSections}
-                expandSection={expandSection}
-                collapseSection={collapseSection}
-              />
-            ) : (
-              <DntelSection
-                section={section}
-                changes={changes}
-                changeValue={changeValue}
-                editMode={editMode}
-              />
-            )}
-          </div>
-        );
-      })}
-    </div>
+          if (isServiceHistory(section)) return null;
+
+          return (
+            <div
+              key={section.id}
+              ref={refCallback}
+              data-section-id={section.id}
+              className={`w-full ${
+                section.layout === "left" || section.layout === "right"
+                  ? "md:w-1/2"
+                  : ""
+              }`}
+            >
+              {isCodeSection(section) ? (
+                <DntelCodesSection
+                  section={section}
+                  changes={changes}
+                  changeValue={changeValue}
+                  editMode={editMode}
+                  expandedSections={expanded}
+                  expandSection={expand}
+                  collapseSection={collapse}
+                />
+              ) : (
+                <DntelSection
+                  section={section}
+                  changes={changes}
+                  changeValue={changeValue}
+                  editMode={editMode}
+                  expandedSections={expanded}
+                  expandSection={expand}
+                  collapseSection={collapse}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };

@@ -1,6 +1,12 @@
 import React from "react";
 import { DntelFieldProps } from "@types";
 import { X, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@components/ui/Tooltip";
 
 type SelectOption = { value: string; label: string };
 
@@ -25,7 +31,6 @@ const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
 
   const isMismatch = (() => {
     if (value === null || value === undefined || value === "") return false;
-
     if (fieldType === "boolean") return typeof value !== "boolean";
     if (fieldType === "select")
       return !normalizedOptions.find((opt) => opt.value === value);
@@ -35,9 +40,18 @@ const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
 
   const TooltipIcon = () =>
     field.tooltip ? (
-      <span className="ml-1 inline-block align-middle" title={field.tooltip}>
-        <Info size={14} className="text-gray-400 inline-block" />
-      </span>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="ml-1 inline-block align-middle cursor-help">
+              <Info size={14} className="text-gray-400 inline-block" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-black text-white px-2 py-1 rounded text-xs max-w-[250px]">
+            {field.tooltip}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     ) : null;
 
   if (!editMode) {
