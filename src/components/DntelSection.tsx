@@ -36,15 +36,15 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
 
   const layoutWrapperClass =
     section.layout === "left" || section.layout === "right"
-      ? "w-full md:w-1/2 px-4"
+      ? "w-full md:w-1/2"
       : "w-full px-4";
 
   const gridColClass =
-    section.layout === "full" ? "grid-cols-2 sm:grid-cols-2" : "grid-cols-1"; // force single-column for left/right for better space
+    section.layout === "full" ? "grid-cols-2 sm:grid-cols-2" : "grid-cols-1";
 
   return (
     <div
-      className={`border rounded-lg shadow-md ${layoutWrapperClass} p-6`} // added p-6
+      className={`border rounded-lg shadow-md ${layoutWrapperClass}`}
       style={{ backgroundColor: section.bgColor || "#fff" }}
     >
       <h2 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
@@ -64,7 +64,7 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
         </span>
       </h2>
 
-      <div className={`grid ${gridColClass} gap-4 w-full`}>
+      <div className={`grid ${gridColClass} gap-x-4 gap-y-6 w-full`}>
         {preparedFields.map(({ key, field, value }) => {
           const colSpan = parseInt(String(field.colSpan || 2), 10);
           const colSpanClass = `col-span-${Math.min(colSpan, 12)}`;
