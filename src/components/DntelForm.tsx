@@ -101,7 +101,7 @@ const DntelForm: React.FC<DntelFormProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-wrap gap-x-6 gap-y-6">
+    <div className="flex flex-wrap gap-y-6">
       {sortedSections.map((section) => {
         const refCallback = (el: HTMLDivElement | null) => {
           sectionRefs.current[section.id] = el;
@@ -116,9 +116,9 @@ const DntelForm: React.FC<DntelFormProps> = ({
             data-section-id={section.id}
             className={`w-full ${
               section.layout === "left"
-                ? "w-[49%]"
+                ? "w-1/2"
                 : section.layout === "right"
-                ? "w-[49%] ml-auto"
+                ? "w-1/2 ml-auto"
                 : ""
             }`}
           >
