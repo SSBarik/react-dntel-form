@@ -13,10 +13,14 @@ export const DntelForm: React.FC<DntelFormProps> = ({
   changes,
   changeValue,
   editMode,
+  setEditMode,
+  expandedSections,
+  expandSection,
+  collapseSection,
 }) => {
-  const sortedSections = Object.values(initialData.sections).sort(
-    (a, b) => a.order - b.order
-  );
+  const sortedSections = Object.entries(initialData.sections)
+    .map(([key, section]) => ({ ...section, id: key }))
+    .sort((a, b) => a.order - b.order);
 
   const isCodeSection = (
     section: DntelSectionSchema | DntelCodeSectionSchema
@@ -38,6 +42,9 @@ export const DntelForm: React.FC<DntelFormProps> = ({
             changes={changes}
             changeValue={changeValue}
             editMode={editMode}
+            expandedSections={expandedSections}
+            expandSection={expandSection}
+            collapseSection={collapseSection}
           />
         ) : (
           <DntelSection

@@ -3,9 +3,18 @@ import { DntelFormHook } from "@types";
 import { DntelForm } from "@components/DntelForm";
 
 export function useDntelForm(initialData: any, id?: string): DntelFormHook {
+  const STORAGE_KEY = id ? `dntel-changes-${id}` : "dntel-changes";
+
   const [editMode, setEditModeState] = useState<boolean>(false);
   const [savedData, setSavedData] = useState<{ [key: string]: any }>({});
-  const [changes, setChanges] = useState<{ [key: string]: any }>({});
+  const [changes, setChanges] = useState<{ [key: string]: any }>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [activeSection, setActiveSection] = useState<string>("");
   const [lastChanged, setLastChanged] = useState<number | null>(null);
@@ -14,10 +23,17 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
     return { ...savedData, ...changes };
   }, [savedData, changes]);
 
-  const changeValue = useCallback((key: string, value: any) => {
-    setChanges((prev) => ({ ...prev, [key]: value }));
-    setLastChanged(Date.now());
-  }, []);
+  const changeValue = useCallback(
+    (key: string, value: any) => {
+      setChanges((prev) => {
+        const updated = { ...prev, [key]: value };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
+      setLastChanged(Date.now());
+    },
+    [STORAGE_KEY]
+  );
 
   const expandSection = useCallback((id: string) => {
     setExpandedSections((prev) => (prev.includes(id) ? prev : [...prev, id]));
@@ -56,27 +72,38 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
     setChanges({});
     setSavedData({});
     setLastChanged(null);
-  }, []);
+    localStorage.removeItem(STORAGE_KEY);
+  }, [STORAGE_KEY]);
 
   const clearLS = useCallback(() => {
-    localStorage.clear();
-  }, []);
+    localStorage.removeItem(STORAGE_KEY);
+    setChanges({});
+  }, [STORAGE_KEY]);
 
-  // Save changes
   const saveChanges = useCallback(() => {
     setSavedData((prev) => ({ ...prev, ...changes }));
     setChanges({});
+    localStorage.removeItem(STORAGE_KEY);
     setEditModeState(false);
-  }, [changes]);
+  }, [changes, STORAGE_KEY]);
 
-  // Custom setEditMode handles cancel behavior when turning edit mode off
-  const setEditMode = useCallback((edit: boolean) => {
-    if (!edit) {
-      // cancel edit
-      setChanges({});
-    }
-    setEditModeState(edit);
-  }, []);
+  const setEditMode = useCallback(
+    (edit: boolean) => {
+      if (edit) {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          setChanges(stored ? JSON.parse(stored) : {});
+        } catch {
+          setChanges({});
+        }
+      } else {
+        setChanges({});
+        // Don't touch localStorage — keep the draft!
+      }
+      setEditModeState(edit);
+    },
+    [STORAGE_KEY]
+  );
 
   const FormComponent = useMemo(
     () => (
@@ -114,7 +141,7 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
     expandedSections,
     lastChanged,
     editMode,
-    setEditMode, // this now handles cancel internally
+    setEditMode,
     expandAll,
     collapseAll,
     scrollToSection,

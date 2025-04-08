@@ -11,15 +11,16 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
 }) => {
   const preparedFields = useMemo(() => {
     return Object.entries(section.fields).map(([fieldKey, field]) => {
+      const fullKey = `${section.id}.${fieldKey}`;
       const hasUserChange = Object.prototype.hasOwnProperty.call(
         changes,
-        fieldKey
+        fullKey
       );
       const value = hasUserChange
-        ? changes[fieldKey]
+        ? changes[fullKey]
         : field.value ?? field.defaultValue ?? "";
       return {
-        key: `${section.id}-${fieldKey}`,
+        key: fullKey,
         field: { ...field, key: fieldKey },
         value,
       };
@@ -42,14 +43,13 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
   const gridColClass =
     section.layout === "full" ? "grid-cols-2 sm:grid-cols-2" : "grid-cols-1";
 
+  console.log("section", section);
   return (
     <div
       className={`border rounded-lg shadow-md ${layoutWrapperClass}`}
       style={{ backgroundColor: section.bgColor || "#fff" }}
     >
       <h2 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
-        {" "}
-        {/* added mb-4 */}
         {section.title}
         {section.tooltip && (
           <span
@@ -60,7 +60,7 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
           </span>
         )}
         <span className="text-sm text-gray-500 ml-2">
-          {section.id} ({stats.filled}/{stats.total})
+          ({stats.filled}/{stats.total})
         </span>
       </h2>
 
@@ -73,7 +73,9 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
               <DntelField
                 field={field}
                 value={value}
-                onChange={(val) => changeValue(field.key, val)}
+                onChange={(val) =>
+                  changeValue(`${section.id}.${field.key}`, val)
+                }
                 editMode={editMode}
                 sectionId={section.id}
               />

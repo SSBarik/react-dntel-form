@@ -5,18 +5,7 @@ import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import {
-  DntelCodeSectionSchema,
-  DntelCodeEntry,
-  DntelFieldSchema,
-} from "../types";
-
-interface DntelCodesSectionProps {
-  section: DntelCodeSectionSchema;
-  changes: Record<string, string | boolean>;
-  changeValue: (key: string, value: string | boolean) => void;
-  editMode: boolean;
-}
+import { DntelCodesSectionProps } from "../types";
 
 export default function DntelCodesSection({
   section,
