@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { DntelFormHook } from "@types";
 import { DntelForm } from "@components/DntelForm";
 
@@ -62,10 +62,6 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
 
   const scrollToSection = useCallback((id: string) => {
     setActiveSection(id);
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
   }, []);
 
   const reset = useCallback(() => {
@@ -118,6 +114,9 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
         collapseSection={collapseSection}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
+        scrollToSection={(id) => {
+          scrollToSection(id);
+        }}
       />
     ),
     [
@@ -131,6 +130,8 @@ export function useDntelForm(initialData: any, id?: string): DntelFormHook {
       expandedSections,
       expandSection,
       collapseSection,
+      activeSection,
+      scrollToSection,
     ]
   );
 
