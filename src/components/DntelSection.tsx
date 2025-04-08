@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { DntelSectionProps } from "@types";
 import DntelField from "@components/DntelField";
 import { Info, ChevronDown } from "lucide-react";
@@ -47,8 +47,7 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
     return { total, filled };
   }, [preparedFields]);
 
-  const gridColClass =
-    section.layout === "full" ? "grid-cols-2 sm:grid-cols-2" : "grid-cols-1";
+  const gridColClass = "grid-cols-2 sm:grid-cols-2";
 
   const handleToggle = () => {
     isOpen ? collapseSection(section.id) : expandSection(section.id);
@@ -56,10 +55,10 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
 
   return (
     <div
-      className="border rounded-lg shadow-md"
-      style={{ backgroundColor: section.bgColor || "#fff" }}
+      className="rounded-lg"
+      style={{ backgroundColor: section.bgColor || "#f3f5f7" }}
     >
-      <div className="flex items-center justify-between px-4 py-3 border-b">
+      <div className="flex items-center justify-between px-4 py-3 ">
         <div className="flex items-center gap-2 text-gray-800 text-xl font-semibold">
           {section.title}
           {section.tooltip && (
@@ -97,12 +96,17 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
       {isOpen && (
         <div className={`grid ${gridColClass} gap-x-4 gap-y-6 p-4`}>
           {preparedFields.map(({ key, field, value }) => {
-            const colSpan = Math.min(
-              parseInt(String(field.colSpan || 2), 10),
-              2
-            );
+            // Determine effective colSpan:
+            // If a field colSpan is provided, honor it; otherwise, default to 2.
+            const effectiveColSpan =
+              typeof field.colSpan === "number" ? field.colSpan : 2;
+            const colSpanClass =
+              effectiveColSpan === 1 ? "col-span-1" : "col-span-2";
+
+            console.log("field colspan", field, section.id, colSpanClass);
+
             return (
-              <div key={key} className={`col-span-${colSpan}`}>
+              <div key={key} className={colSpanClass}>
                 <DntelField
                   field={field}
                   value={value}
@@ -120,3 +124,5 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
     </div>
   );
 };
+
+export default DntelSection;

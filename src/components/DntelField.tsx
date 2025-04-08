@@ -59,17 +59,17 @@ const DntelField: React.FC<DntelFieldProps & { sectionId: string }> = ({
       <div className="mb-4">
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-gray-900"
         >
           {label}
           <TooltipIcon />
         </label>
-        <div id={inputId} className="mt-1 p-2 bg-gray-100 rounded">
+        <div id={inputId} className="mt-1 text-sm text-gray-500">
           {fieldType === "boolean"
             ? value === true
               ? "Yes"
               : "No"
-            : value?.toString() || "—"}
+            : value?.toString() || ""}
         </div>
       </div>
     );

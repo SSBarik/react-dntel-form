@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@components/ui/card";
 import { Button } from "@components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { DntelCodeSectionSchema, DntelFieldSchema } from "../types";
 
 interface DntelCodesSectionProps {
@@ -49,8 +49,8 @@ export default function DntelCodesSection({
   };
 
   return (
-    <div className="w-full px-4">
-      <div className="flex items-center justify-between px-4 py-3 border rounded-md shadow-sm bg-white">
+    <div className="w-full">
+      <div className="flex items-center justify-between p-4 rounded-md bg-gray-50">
         <div className="text-xl font-semibold text-black">
           {section.title} ({filled}/{total})
         </div>
@@ -65,36 +65,47 @@ export default function DntelCodesSection({
       </div>
 
       {isOpen && (
-        <Card className="rounded-lg border border-gray-200 mt-4">
+        <Card className="rounded-lg   ">
           <CardContent className="p-0">
-            <div className="grid grid-cols-5 gap-4 border-b p-4 font-semibold text-sm text-black bg-gray-50">
+            <div className="grid grid-cols-[45%_5%_5%_30%_10%] gap-4 p-4 font-semibold text-sm text-black bg-gray-50">
               <div>Code</div>
               <div>%</div>
               <div>Freq</div>
               <div>Additional Info</div>
               <div>Actions</div>
             </div>
+
             {entries.map(([code, data], idx) => (
-              <div key={code}>
-                <div className="grid grid-cols-5 gap-4 p-4 border-b items-center text-sm text-gray-800">
-                  <div>{code}</div>
-                  <div>{data.coveragePercentage?.value || "–"}</div>
-                  <div>{data.frequency?.value || "–"}</div>
-                  <div>
-                    <Button
-                      variant="outline"
-                      onClick={() => toggleExpand(idx)}
-                      className="text-xs font-medium flex items-center gap-1 rounded-md px-2 py-1 border-gray-300 shadow-sm"
-                    >
-                      {expandedIndex === idx ? (
-                        <ChevronUp className="w-3 h-3" />
-                      ) : (
-                        <ChevronDown className="w-3 h-3" />
-                      )}
-                      Additional Info ({data.stats?.filled || 0})
-                    </Button>
+              <div key={code} className="border-b">
+                <div className="grid grid-cols-[45%_5%_5%_30%_10%] gap-4 p-4 items-center text-sm text-gray-800">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-yellow-500" />
+                    <span>
+                      {data.name} ({code})
+                    </span>
                   </div>
-                  <div>–</div>
+                  <div>{data.coveragePercentage?.value || ""}</div>
+                  <div>{data.frequency?.value || ""}</div>
+                  <div>
+                    {Object.keys(data.guidelines ?? {}).length > 0 ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => toggleExpand(idx)}
+                        className="text-xs font-medium flex items-center gap-1 rounded-md px-2 py-1 "
+                      >
+                        Additional Info (
+                        {Object.keys(data.guidelines ?? {}).length})
+                        {expandedIndex === idx ? (
+                          <ChevronUp className="w-3 h-3" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3" />
+                        )}
+                      </Button>
+                    ) : (
+                      "-"
+                    )}
+                  </div>
+                  <div></div>
                 </div>
                 {expandedIndex === idx && (
                   <div className="col-span-5 px-4 pb-4">

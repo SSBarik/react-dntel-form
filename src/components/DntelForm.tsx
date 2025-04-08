@@ -101,7 +101,7 @@ const DntelForm: React.FC<DntelFormProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-wrap gap-x-6 gap-y-6">
+    <div className="flex flex-wrap gap-x-6 gap-y-6 p-4">
       {sortedSections.map((section) => {
         const refCallback = (el: HTMLDivElement | null) => {
           sectionRefs.current[section.id] = el;
@@ -126,7 +126,7 @@ const DntelForm: React.FC<DntelFormProps> = ({
                 changes={changes}
                 changeValue={changeValue}
                 editMode={editMode}
-                expandedSections={expanded} // ✅ ensures consumer controls apply
+                expandedSections={expanded}
                 expandSection={expand}
                 collapseSection={collapse}
                 scrollToSection={scrollTo}
