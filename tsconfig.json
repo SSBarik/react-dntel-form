@@ -14,7 +14,8 @@
       "@types": ["types"],
       "@hooks/*": ["hooks/*"],
       "@components/*": ["components/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@lib/*": ["lib/*"]
     }
   },
   "include": ["src"],
