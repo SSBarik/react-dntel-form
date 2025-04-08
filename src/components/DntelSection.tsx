@@ -96,17 +96,8 @@ export const DntelSection: React.FC<DntelSectionProps> = ({
       {isOpen && (
         <div className={`grid ${gridColClass} gap-x-4 gap-y-6 p-4`}>
           {preparedFields.map(({ key, field, value }) => {
-            // Determine effective colSpan:
-            // If a field colSpan is provided, honor it; otherwise, default to 2.
-            const effectiveColSpan =
-              typeof field.colSpan === "number" ? field.colSpan : 2;
-            const colSpanClass =
-              effectiveColSpan === 1 ? "col-span-1" : "col-span-2";
-
-            console.log("field colspan", field, section.id, colSpanClass);
-
             return (
-              <div key={key} className={colSpanClass}>
+              <div key={key} className={`col-span-${field.colSpan}`}>
                 <DntelField
                   field={field}
                   value={value}
